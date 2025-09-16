@@ -10,7 +10,7 @@ Resources:
       Runtime: nodejs18.x
       Environment:
         Variables:
-          BUCKET_NAME: img-upload-v1-adi-2025  # nume global unic
+          BUCKET_NAME: img-upload-v1  # nume global unic
       Policies:
         - S3FullAccess
       Events:
