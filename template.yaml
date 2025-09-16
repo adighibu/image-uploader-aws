@@ -1,0 +1,27 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Image Uploader Node.js Project
+
+Resources:
+  UploadLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: backend/app.handler   # fișierul și funcția Lambda
+      Runtime: nodejs18.x
+      Environment:
+        Variables:
+          BUCKET_NAME: img-upload-v1  # înlocuiește cu bucket S3
+      Policies:
+        - S3FullAccess
+      Events:
+        UploadAPI:
+          Type: Api
+          Properties:
+            Path: /upload
+            Method: get
+
+Outputs:
+  UploadAPIEndpoint:
+    Description: "API Gateway endpoint pentru upload"
+    Value:
+      Fn::Sub: "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/upload"

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Image Uploader</title>
+</head>
+<body>
+  <h1>Upload Image</h1>
+  <input type="file" id="fileInput">
+  <button onclick="uploadFile()">Upload</button>
+
+  <script>
+    async function uploadFile() {
+      const file = document.getElementById('fileInput').files[0];
+      if (!file) return alert('Select a file');
+
+      // 1. Cere presigned URL de la Lambda
+      const res = await fetch(`https://<API_GATEWAY_URL>/upload?filename=${file.name}`);
+      const data = await res.json();
+
+      // 2. Încarcă fișierul direct în S3
+      const upload = await fetch(data.uploadURL, {
+        method: 'PUT',
+        body: file
+      });
+
+      if (upload.ok) alert('File uploaded successfully!');
+      else alert('Upload failed');
+    }
+  </script>
+</body>
+</html>
