@@ -13,7 +13,7 @@ Resources:
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
         AllowOrigin: "'*'"
 
-  # Lambda pentru uploa
+  # Lambda pentru upload
   UploadLambda:
     Type: AWS::Serverless::Function
     Properties:
@@ -30,7 +30,7 @@ Resources:
           Type: Api
           Properties:
             Path: /upload
-            Method: post
+            Method: ANY   # 👉 permite POST și OPTIONS automat
             RestApiId:
               Ref: UploadApi
 
