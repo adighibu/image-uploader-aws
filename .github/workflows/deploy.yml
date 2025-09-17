@@ -31,12 +31,16 @@ jobs:
       - name: SAM Build
         run: sam build
 
-      # 5️⃣ Deploy SAM
+      # 5️⃣ Deploy SAM cu S3 bucket pentru artefacte
       - name: SAM Deploy
         run: |
-          sam deploy --no-confirm-changeset --stack-name image-uploader --capabilities CAPABILITY_IAM
+          sam deploy \
+            --stack-name image-uploader \
+            --capabilities CAPABILITY_IAM \
+            --s3-bucket image-uploader-artifacts-adi-2025 \
+            --no-confirm-changeset
 
-      # 6️⃣ Obține URL-ul real al API Gateway
+      # 6️⃣ Obține URL-ul real al API Gateway și actualizează config.json
       - name: Update config.json
         run: |
           API_URL=$(aws cloudformation describe-stacks \
@@ -45,7 +49,7 @@ jobs:
             --output text)
           echo "{\"API_BASE_URL\": \"$API_URL\"}" > frontend/config.json
 
-      # 7️⃣ Trimite config.json în S3
+      # 7️⃣ Upload frontend (index.html + config.json) în S3
       - name: Upload frontend to S3
         run: |
           aws s3 sync frontend/ s3://img-upload-v1-adi-2025-12345/
