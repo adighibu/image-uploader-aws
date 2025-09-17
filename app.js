@@ -1,7 +1,7 @@
 // backend/app.js
 const AWS = require('aws-sdk');
 const s3 = new AWS.S3();
-const bucketName = process.env.img-upload-v1; // numele bucketului din SAM
+const bucketName = process.env.img-upload-v1-adi-2025-12345; // numele bucketului din SAM
 
 exports.handler = async (event) => {
     try {
