@@ -10,9 +10,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      # 1️⃣ Checkout cod
+      - name: Checkout code
         uses: actions/checkout@v3
 
+      # 2️⃣ Configurează AWS
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -20,28 +22,30 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-central-1
 
-      - name: Check SAM CLI version
-        run: sam --version
+      # 3️⃣ Instalează SAM CLI
+      - name: Install SAM CLI
+        run: |
+          pip install --upgrade aws-sam-cli
 
-      - name: Validate SAM template
-        run: sam validate
-
-      - name: Build SAM project
+      # 4️⃣ Build SAM
+      - name: SAM Build
         run: sam build
 
-      - name: Deploy SAM project
+      # 5️⃣ Deploy SAM
+      - name: SAM Deploy
         run: |
-          sam deploy \
-            --stack-name image-uploader \
-            --no-confirm-changeset \
-            --capabilities CAPABILITY_IAM \
-            --resolve-s3 \
-            --fail-on-empty-changeset \
-            || { echo "Deploy failed, triggering rollback"; aws cloudformation delete-stack --stack-name image-uploader; exit 1; }
+          sam deploy --no-confirm-changeset --stack-name image-uploader --capabilities CAPABILITY_IAM
 
-      - name: Show API Gateway URL
+      # 6️⃣ Obține URL-ul real al API Gateway
+      - name: Update config.json
         run: |
-          aws cloudformation describe-stacks \
+          API_URL=$(aws cloudformation describe-stacks \
             --stack-name image-uploader \
-            --query "Stacks[0].Outputs" \
-            --output table
+            --query "Stacks[0].Outputs[?OutputKey=='UploadAPIEndpoint'].OutputValue" \
+            --output text)
+          echo "{\"API_BASE_URL\": \"$API_URL\"}" > frontend/config.json
+
+      # 7️⃣ Trimite config.json în S3
+      - name: Upload frontend to S3
+        run: |
+          aws s3 sync frontend/ s3://img-upload-v1-adi-2025-12345/
