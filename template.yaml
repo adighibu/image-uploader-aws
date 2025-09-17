@@ -20,6 +20,11 @@ Resources:
           Properties:
             Path: /upload
             Method: post   # pentru upload fișiere
+            Cors:
+              AllowOrigins: "'*'"                # permite toate origin-urile
+              AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              AllowMethods: "'POST,OPTIONS'"     # metode permise
+              MaxAge: 86400                       # cache preflight request
 
 Outputs:
   UploadAPIEndpoint:
