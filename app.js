@@ -1,7 +1,7 @@
 // backend/app.js
 const AWS = require('aws-sdk');
 const s3 = new AWS.S3();
-const bucketName = process.env.img-upload-v1-adi-2025-12345; // numele bucketului din SAM
+const bucketName = process.env.BUCKET_NAME; // ✅ folosește variabila din SAM template
 
 exports.handler = async (event) => {
     try {
@@ -10,6 +10,11 @@ exports.handler = async (event) => {
         if (!fileName) {
             return {
                 statusCode: 400,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                    'Access-Control-Allow-Headers': 'Content-Type'
+                },
                 body: JSON.stringify({ message: "Missing filename parameter" }),
             };
         }
@@ -25,13 +30,23 @@ exports.handler = async (event) => {
 
         return {
             statusCode: 200,
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',        // 👈 CORS fix
+                'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                'Access-Control-Allow-Headers': 'Content-Type'
+            },
             body: JSON.stringify({ uploadURL }),
         };
 
     } catch (error) {
         return {
             statusCode: 500,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'OPTIONS,POST',
+                'Access-Control-Allow-Headers': 'Content-Type'
+            },
             body: JSON.stringify({ message: error.message }),
         };
     }
