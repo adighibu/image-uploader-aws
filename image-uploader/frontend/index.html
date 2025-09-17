@@ -15,7 +15,7 @@
 
       try {
         // 1. Cere presigned URL de la API Gateway → Lambda
-        const res = await fetch(`https://fubjtrc97k.execute-api.eu-central-1.amazonaws.com/Prod/upload?filename=${encodeURIComponent(file.name)}`);
+        const res = await fetch(`https://nilzu8jpa9.execute-api.eu-central-1.amazonaws.com/Prod/upload?filename=${encodeURIComponent(file.name)}`);
         const data = await res.json();
 
         // 2. Încarcă fișierul direct în S3 cu presigned URL
