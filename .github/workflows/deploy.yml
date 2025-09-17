@@ -43,6 +43,7 @@ jobs:
       # 6️⃣ Obține URL-ul real al API Gateway și actualizează config.json
       - name: Update config.json
         run: |
+          mkdir -p frontend
           API_URL=$(aws cloudformation describe-stacks \
             --stack-name image-uploader \
             --query "Stacks[0].Outputs[?OutputKey=='UploadAPIEndpoint'].OutputValue" \
