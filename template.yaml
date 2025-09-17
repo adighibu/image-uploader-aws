@@ -3,10 +3,22 @@ Transform: AWS::Serverless-2016-10-31
 Description: Image Uploader Node.js Project
 
 Resources:
+  # API Gateway cu CORS activat
+  UploadApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowOrigins: "'*'"
+        AllowMethods: "'POST,OPTIONS'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        MaxAge: 86400
+
+  # Lambda pentru upload
   UploadLambda:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: app.handler       # dacă app.js este în rădăcina proiectului
+      Handler: app.handler
       Runtime: nodejs18.x
       Environment:
         Variables:
@@ -19,15 +31,12 @@ Resources:
           Type: Api
           Properties:
             Path: /upload
-            Method: post   # pentru upload fișiere
-            Cors:
-              AllowOrigins: "'*'"                # permite toate origin-urile
-              AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-              AllowMethods: "'POST,OPTIONS'"     # metode permise
-              MaxAge: 86400                       # cache preflight request
+            Method: post
+            RestApiId:
+              Ref: UploadApi  # leagă Lambda de API cu CORS
 
 Outputs:
   UploadAPIEndpoint:
     Description: "API Gateway endpoint pentru upload"
     Value:
-      Fn::Sub: "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/upload"
+      Fn::Sub: "https://${UploadApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/upload"
