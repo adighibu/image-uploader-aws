@@ -8,11 +8,7 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
-      Cors:
-        AllowOrigins: "'*'"
-        AllowMethods: "'POST,OPTIONS'"
-        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-        MaxAge: 86400
+      Cors: "'*'"   # permite toate origin-urile
 
   # Lambda pentru upload
   UploadLambda:
@@ -22,7 +18,7 @@ Resources:
       Runtime: nodejs18.x
       Environment:
         Variables:
-          BUCKET_NAME: img-upload-v1-adi-2025-12345  # nume global unic
+          BUCKET_NAME: img-upload-v1-adi-2025-12345
       Policies:
         - AWSLambdaBasicExecutionRole
         - arn:aws:iam::aws:policy/AmazonS3FullAccess
@@ -32,7 +28,7 @@ Resources:
           Properties:
             Path: /upload
             Method: post
-            RestApiId:
+            RestApiId: 
               Ref: UploadApi  # leagă Lambda de API cu CORS
 
 Outputs:
