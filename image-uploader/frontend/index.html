@@ -14,21 +14,20 @@
       if (!file) return alert('Select a file');
 
       try {
-        // 1. Cere presigned URL de la API Gateway → Lambda
-        const res = await fetch(`https://nilzu8jpa9.execute-api.eu-central-1.amazonaws.com/Prod/upload?filename=${encodeURIComponent(file.name)}`);
+        // citește API_BASE_URL din config.json
+        const configRes = await fetch('config.json');
+        const config = await configRes.json();
+
+        const res = await fetch(`${config.API_BASE_URL}?filename=${encodeURIComponent(file.name)}`);
         const data = await res.json();
 
-        // 2. Încarcă fișierul direct în S3 cu presigned URL
         const upload = await fetch(data.uploadURL, {
           method: 'PUT',
           body: file
         });
 
-        if (upload.ok) {
-          alert('File uploaded successfully!');
-        } else {
-          alert('Upload failed');
-        }
+        if (upload.ok) alert('File uploaded successfully!');
+        else alert('Upload failed');
       } catch (err) {
         console.error(err);
         alert('A apărut o eroare.');
