@@ -13,18 +13,26 @@
       const file = document.getElementById('fileInput').files[0];
       if (!file) return alert('Select a file');
 
-      // 1. Cere presigned URL de la Lambda
-      const res = await fetch(`https://<API_GATEWAY_URL>/upload?filename=${file.name}`);
-      const data = await res.json();
+      try {
+        // 1. Cere presigned URL de la API Gateway → Lambda
+        const res = await fetch(`https://fubjtrc97k.execute-api.eu-central-1.amazonaws.com/Prod/upload?filename=${encodeURIComponent(file.name)}`);
+        const data = await res.json();
 
-      // 2. Încarcă fișierul direct în S3
-      const upload = await fetch(data.uploadURL, {
-        method: 'PUT',
-        body: file
-      });
+        // 2. Încarcă fișierul direct în S3 cu presigned URL
+        const upload = await fetch(data.uploadURL, {
+          method: 'PUT',
+          body: file
+        });
 
-      if (upload.ok) alert('File uploaded successfully!');
-      else alert('Upload failed');
+        if (upload.ok) {
+          alert('File uploaded successfully!');
+        } else {
+          alert('Upload failed');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('A apărut o eroare.');
+      }
     }
   </script>
 </body>
