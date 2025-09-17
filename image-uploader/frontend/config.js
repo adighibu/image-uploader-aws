@@ -1,3 +1,3 @@
 export default {
-  API_BASE_URL: "https://placeholder.execute-api.eu-central-1.amazonaws.com/Prod/upload"
+  API_BASE_URL: ""
 };
