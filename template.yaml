@@ -1,14 +1,13 @@
-AWSTemplateFormatVersion: '2010-09-09'
-Transform: AWS::Serverless-2016-10-31
-Description: Image Uploader Node.js Project
-
 Resources:
   # API Gateway cu CORS activat
   UploadApi:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
-      Cors: "'*'"   # permite toate origin-urile
+      Cors:
+        AllowMethods: "'OPTIONS,POST,GET'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowOrigin: "'*'"
 
   # Lambda pentru upload
   UploadLambda:
@@ -29,7 +28,7 @@ Resources:
             Path: /upload
             Method: post
             RestApiId: 
-              Ref: UploadApi  # leagă Lambda de API cu CORS
+              Ref: UploadApi
 
 Outputs:
   UploadAPIEndpoint:
