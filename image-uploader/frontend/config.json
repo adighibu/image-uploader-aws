@@ -1,3 +1,6 @@
+
 {
-  "API_BASE_URL": "https://qh71bbvam8.execute-api.eu-central-1.amazonaws.com/Prod/upload"
+  "API_BASE_URL": "https://qh71bbvam8.execute-api.eu-central-1.amazonaws.com/Prod/upload",
+  "BUCKET_NAME": "img-upload-v1-adi-2025-12345",
+  "REGION": "eu-central-1"
 }

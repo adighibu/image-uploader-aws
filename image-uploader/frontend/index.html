@@ -1,23 +1,38 @@
 <!DOCTYPE html>
-<html>
+<html lang="ro">
 <head>
+  <meta charset="UTF-8">
   <title>Image Uploader</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .gallery img { width: 200px; margin: 10px; border: 1px solid #ccc; border-radius: 8px; }
+  </style>
 </head>
 <body>
-  <h1>Upload Image</h1>
+  <h1>📤 Upload Image</h1>
+
+  <!-- Upload form -->
   <input type="file" id="fileInput">
   <button onclick="uploadFile()">Upload</button>
 
+  <h2>🖼️ Imagini existente în bucket</h2>
+  <div id="gallery" class="gallery"></div>
+
   <script>
+    let config = {};
+
+    // Încarcă config.json
+    async function loadConfig() {
+      const res = await fetch('config.json');
+      config = await res.json();
+    }
+
+    // Upload imagine
     async function uploadFile() {
       const file = document.getElementById('fileInput').files[0];
-      if (!file) return alert('Select a file');
+      if (!file) return alert('Selectează un fișier!');
 
       try {
-        // citește API_BASE_URL din config.json   c
-        const configRes = await fetch('config.json');
-        const config = await configRes.json();
-
         const res = await fetch(`${config.API_BASE_URL}?filename=${encodeURIComponent(file.name)}`);
         const data = await res.json();
 
@@ -26,13 +41,45 @@
           body: file
         });
 
-        if (upload.ok) alert('File uploaded successfully!');
-        else alert('Upload failed');
+        if (upload.ok) {
+          alert('✅ File uploaded successfully!');
+          loadImages(); // reîncarcă lista
+        } else {
+          alert('❌ Upload failed');
+        }
       } catch (err) {
         console.error(err);
         alert('A apărut o eroare.');
       }
     }
+
+    // Listează imaginile din bucket public
+    async function loadImages() {
+      const bucketUrl = `https://${config.BUCKET_NAME}.s3.${config.REGION}.amazonaws.com/?list-type=2`;
+      const res = await fetch(bucketUrl);
+      const text = await res.text();
+
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(text, "application/xml");
+      const keys = Array.from(xml.getElementsByTagName("Key")).map(el => el.textContent);
+
+      const gallery = document.getElementById("gallery");
+      gallery.innerHTML = "";
+
+      keys.forEach(key => {
+        if (key.match(/\.(jpg|jpeg|png|gif)$/i)) {
+          const img = document.createElement("img");
+          img.src = `https://${config.BUCKET_NAME}.s3.${config.REGION}.amazonaws.com/${key}`;
+          gallery.appendChild(img);
+        }
+      });
+    }
+
+    // Init
+    (async () => {
+      await loadConfig();
+      await loadImages();
+    })();
   </script>
 </body>
 </html>
