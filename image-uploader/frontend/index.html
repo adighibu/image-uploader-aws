@@ -3,21 +3,73 @@
 <head>
   <meta charset="UTF-8">
   <title>Image Uploader</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    .gallery img { width: 200px; margin: 10px; border: 1px solid #ccc; border-radius: 8px; }
-  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <h1>📤 Upload Image</h1>
+<body class="bg-gray-100 text-gray-800 font-sans min-h-screen flex flex-col">
 
-  <!-- Upload form -->
-  <input type="file" id="fileInput">
-  <button onclick="uploadFile()">Upload</button>
+  <!-- Header -->
+  <header class="bg-gray-900 text-white shadow-md">
+    <div class="container mx-auto px-6 py-4 flex flex-col md:flex-row items-center justify-between">
+      
+      <!-- Titlu -->
+      <h1 class="text-2xl font-bold flex items-center gap-2">📤 Image Uploader</h1>
+      
+      <!-- Servicii AWS -->
+      <nav class="flex flex-wrap gap-3 mt-4 md:mt-0">
+        <span class="bg-yellow-500 text-black px-3 py-1 rounded-full text-sm font-semibold">S3</span>
+        <span class="bg-green-500 px-3 py-1 rounded-full text-sm font-semibold">Lambda</span>
+        <span class="bg-blue-500 px-3 py-1 rounded-full text-sm font-semibold">API Gateway</span>
+        <span class="bg-purple-500 px-3 py-1 rounded-full text-sm font-semibold">IAM</span>
+      </nav>
+    </div>
+  </header>
+  
 
-  <h2>🖼️ Imagini existente în bucket</h2>
-  <div id="gallery" class="gallery"></div>
+  <!-- Main -->
+  <main class="container mx-auto px-6 py-10 flex-1">
+    
+    <!-- Upload Section -->
+    <section class="bg-white rounded-2xl shadow-lg p-8 mb-12">
+      <h2 class="text-xl font-semibold mb-6">Încarcă o imagine</h2>
+      <div class="flex flex-col gap-4">
+        <input type="file" id="fileInput" accept="image/*"
+          class="border rounded-lg p-2 w-full md:w-1/2"
+          onchange="previewImage(event)" />
+        
+        <!-- Preview -->
+        <div id="previewContainer" class="hidden">
+          <p class="text-gray-600 mb-2">Previzualizare:</p>
+          <div class="flex flex-col md:flex-row items-start gap-4">
+            <img id="previewImage" class="w-64 h-64 object-cover rounded-lg border shadow-md" />
+            <div class="flex flex-col gap-2">
+              <button onclick="uploadFile()" 
+                class="bg-indigo-600 text-white px-6 py-2 rounded-lg shadow hover:bg-indigo-700 transition">
+                Upload
+              </button>
+              <button onclick="cancelPreview()" 
+                class="bg-gray-300 text-gray-800 px-6 py-2 rounded-lg shadow hover:bg-gray-400 transition">
+                Renunță
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
+    <!-- Gallery Section -->
+    <section>
+      <h2 class="text-xl font-semibold mb-6">🖼️ Imagini existente în bucket</h2>
+      <div id="gallery" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-gray-300 py-6 text-center">
+    <p>&copy; 2025 Image Uploader | Powered by AWS S3 & Lambda</p>
+  </footer>
+
+  <!-- Script -->
   <script>
     let config = {};
 
@@ -25,6 +77,27 @@
     async function loadConfig() {
       const res = await fetch('config.json');
       config = await res.json();
+    }
+
+    // Previzualizare imagine
+    function previewImage(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const preview = document.getElementById("previewImage");
+        preview.src = e.target.result;
+        document.getElementById("previewContainer").classList.remove("hidden");
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Renunță la imaginea selectată
+    function cancelPreview() {
+      document.getElementById("fileInput").value = ""; // reset input
+      document.getElementById("previewContainer").classList.add("hidden"); // ascunde preview
+      document.getElementById("previewImage").src = ""; // curăță imaginea
     }
 
     // Upload imagine
@@ -42,10 +115,11 @@
         });
 
         if (upload.ok) {
-          alert('✅ File uploaded successfully!');
-          loadImages(); // reîncarcă lista
+          alert('✅ Fișier încărcat cu succes!');
+          cancelPreview(); // curățăm preview după upload
+          loadImages();
         } else {
-          alert('❌ Upload failed');
+          alert('❌ Upload eșuat');
         }
       } catch (err) {
         console.error(err);
@@ -53,7 +127,7 @@
       }
     }
 
-    // Listează imaginile din bucket public
+    // Listează imaginile
     async function loadImages() {
       const bucketUrl = `https://${config.BUCKET_NAME}.s3.${config.REGION}.amazonaws.com/?list-type=2`;
       const res = await fetch(bucketUrl);
@@ -68,9 +142,21 @@
 
       keys.forEach(key => {
         if (key.match(/\.(jpg|jpeg|png|gif)$/i)) {
+          const card = document.createElement("div");
+          card.className = "bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden";
+
           const img = document.createElement("img");
           img.src = `https://${config.BUCKET_NAME}.s3.${config.REGION}.amazonaws.com/${key}`;
-          gallery.appendChild(img);
+          img.alt = key;
+          img.className = "w-full h-48 object-cover";
+
+          const caption = document.createElement("div");
+          caption.className = "p-2 text-sm text-gray-600 truncate";
+          caption.innerText = key;
+
+          card.appendChild(img);
+          card.appendChild(caption);
+          gallery.appendChild(card);
         }
       });
     }
