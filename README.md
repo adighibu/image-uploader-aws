@@ -59,6 +59,42 @@ Selectezi o imagine și apesi Upload.
 
 Fișierul va fi salvat în bucket-ul S3.
 
+   [Browser / Frontend] 
+            |
+            v
+ ┌────────────────────────────┐
+ │  Amazon S3 (Static Website)│  ← găzduiește index.html + JS
+ └────────────────────────────┘
+            |
+            v
+ ┌────────────────────────────┐
+ │   API Gateway (REST API)   │  ← expune endpoint-ul HTTP
+ └────────────────────────────┘
+            |
+            v
+ ┌────────────────────────────┐
+ │ AWS Lambda (Backend Logic) │  ← generează presigned URLs
+ └────────────────────────────┘
+            |
+            v
+ ┌────────────────────────────┐
+ │     Amazon S3 (Storage)    │  ← stochează imaginile
+ └────────────────────────────┘
+
+  🔹 Fluxul datelor:
+
+Browserul încarcă frontend-ul din S3 (static hosting).
+
+Când selectezi o imagine → request către API Gateway.
+
+API Gateway trimite request-ul la Lambda.
+
+Lambda generează un presigned URL pentru upload.
+
+Browserul folosește acel link și urcă imaginea direct în S3 (bucket de storage).
+
+Imaginile pot fi listate public și afișate în galerie.
+
 
    
 
