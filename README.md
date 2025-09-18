@@ -1,7 +1,6 @@
 # 📸 Image Uploader – Serverless Project (Node.js + AWS)
 
-Un proiect demonstrativ care permite încărcarea de imagini direct în Amazon S3 folosind **presigned URLs** generate de o funcție AWS Lambda expusă prin API Gateway.  
-Frontend-ul este găzduit ca **static website în S3**, iar backend-ul este implementat cu **AWS SAM**.
+Acest proiect demonstrativ este o aplicație web serverless care permite încărcarea și gestionarea imaginilor direct în Amazon S3 folosind presigned URLs generate de o funcție AWS Lambda expusă prin API Gateway; frontend-ul este găzduit ca static website în S3, backend-ul este implementat cu AWS SAM, iar întregul flux ilustrează integrarea principalelor servicii AWS (S3, Lambda, API Gateway, IAM) într-o soluție modernă și scalabilă
 
 ---
 
